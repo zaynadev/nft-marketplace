@@ -73,11 +73,12 @@ const Home: NextPage = () => {
                 <div className="flex flex-row w-max overflow-x-scroll no-scrollbar select-none" ref={scrollRef}>
                   {[6, 7, 8, 9, 10].map((i) => (
                       <CreatorCard
-                        key={`creator-${i}`}
                         rank={i}
+                        //@ts-ignore
                         creatorImage={images[`creator${i}`]}
-                        creatorName={`0x${makeid(3)}...${makeid(4)}`}
+                        creatorName={`0xabc...xyz}`}
                         creatorEths={10 - i * 0.534}
+                        key={`creator-${i}`}
                       />
                     ))}
                     {!hideButtons && (
@@ -107,15 +108,15 @@ const Home: NextPage = () => {
               <div className="mt-3 w-full flex flex-wrap justify-start md:justify-center">
                 {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((i) => (
                   <NFTCard
-                    key={`nft-${i}`}
                     nft={{
                       i,
                       name: `Nifty NFT ${i}`,
                       price: (10 - i * 0.534).toFixed(2),
-                      seller: `0x${makeid(3)}...${makeid(4)}`,
-                      owner: `0x${makeid(3)}...${makeid(4)}`,
+                      seller: `0xabcd...xyz`,
+                      owner: `0x0xabcd...xyz`,
                       description: 'Cool NFT on Sale',
                     }}
+                    key={`nft-${i}`}
                   />
                 ))}
               </div>
