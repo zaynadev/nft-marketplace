@@ -6,6 +6,7 @@ import { MarketAddress, MarketAddressABI } from './constants';
 
 //@ts-ignore
 export const NFTContext = React.createContext();
+const fetchContract = (signerOrProvider: any) => new ethers.Contract(MarketAddress, MarketAddressABI, signerOrProvider);
 
 export const NFTProvider = ({ children }: any) => {
   const currency = 'ETH';
@@ -37,10 +38,37 @@ export const NFTProvider = ({ children }: any) => {
     checkIfWalletIsConnect();
   }, []);
 
+
+  const createSale = async (url, formInputPrice, isReselling, id) => {
+    try {
+      const web3Modal = new Web3Modal();
+      const connection = await web3Modal.connect();
+      const provider = new ethers.providers.Web3Provider(connection);
+      const signer = provider.getSigner();
+  
+      const price = ethers.utils.parseUnits(formInputPrice, 'ether');
+      const contract = fetchContract(signer);
+      console.log({contract});
+      const listingPrice = await contract.getListingPrice();
+      console.log({listingPrice});
+  
+      const transaction = !isReselling
+        ? await contract.createToken(url, price, { value: listingPrice.toString() })
+        : await contract.resellToken(id, price, { value: listingPrice.toString() });
+  
+      setIsLoadingNFT(true);
+      await transaction.wait();
+    } catch(err){
+        console.log('Error createSale: ', err);
+    }
+   
+  };
+
   return <NFTContext.Provider value={{
     currency,
     connectWallet,
-    currentAccount
+    currentAccount,
+    createSale
   }}>
     {children}
   </NFTContext.Provider>

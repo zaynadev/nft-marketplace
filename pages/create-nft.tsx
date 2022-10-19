@@ -1,24 +1,40 @@
 import { useState, useMemo, useCallback, useContext } from 'react';
+import fs from 'fs';
+import FormData from 'form-data';
+import basePathConverter from "base-path-converter";
+import got from 'got';
+
 import { create as ipfsHttpClient } from 'ipfs-http-client';
 import { useRouter } from 'next/router';
 import { useDropzone } from 'react-dropzone';
 import Image from 'next/image';
 import { useTheme } from 'next-themes';
-
 import { Button, Input, Loader } from '../components';
 import images from '../assets';
+import { NFTContext } from '../context/NFTContext';
 
-const client = ipfsHttpClient('https://ipfs.infura.io:5001/api/v0');
+const auth =
+    'Basic ' + Buffer.from(process.env.NEXT_PUBLIC_projectId + ':' + process.env.NEXT_PUBLIC_projectSecret).toString('base64');
 
+const client = ipfsHttpClient({
+    host: 'ipfs.infura.io',
+    port: 5001,
+    protocol: 'https',
+    headers: {
+        authorization: auth,
+    },
+});
 const CreateItem = () => {
   const [fileUrl, setFileUrl] = useState(null);
   const { theme } = useTheme();
 
+  const { createSale } = useContext(NFTContext);
+
   const uploadToInfura = async (file: any) => {
     try {
       const added = await client.add({ content: file });
-
-      const url = `https://ipfs.infura.io/ipfs/${added.path}`;
+      const url = `https://ipfs.io/ipfs/${added.path}`;
+      console.log({url});
 
       setFileUrl(url);
     } catch (error) {
@@ -50,7 +66,20 @@ const CreateItem = () => {
   const router = useRouter();
 
   const createMarket = async () => {
-
+    const { name, description, price } = formInput;
+    if (!name || !description || !price || !fileUrl) return;
+    /* first, upload to IPFS */
+    const data = JSON.stringify({ name, description, image: fileUrl });
+    try {
+      const added = await client.add(data);
+      const url = `https://ipfs.io/ipfs/${added.path}`;
+      console.log({url});
+      /* after file is uploaded to IPFS, pass the URL to save it on Polygon */
+      await createSale(url, formInput.price);
+      router.push('/');
+    } catch (error) {
+      console.log('Error uploading fiile: ', error);
+    }
   };
 
  
