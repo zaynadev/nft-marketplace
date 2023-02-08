@@ -12,7 +12,6 @@ contract NFTMarketplace is ERC721URIStorage, Ownable {
     Counters.Counter private _tokenIds;
     Counters.Counter private _itemsSold;
     uint256 listPrice = 0.0001 ether;
-    address payable owner;
 
     struct TokenList {
         uint256 tokenId;
@@ -33,9 +32,7 @@ contract NFTMarketplace is ERC721URIStorage, Ownable {
         bool currentlyListed
     );
 
-    constructor() ERC721("NFTMarketplace", "MKP") {
-        owner = payable(msg.sender);
-    }
+    constructor() ERC721("NFTMarketplace", "MKP") {}
 
     modifier ListedTokenExist(uint256 tokenId) {
         require(
@@ -137,7 +134,7 @@ contract NFTMarketplace is ERC721URIStorage, Ownable {
         tokenBalance[msg.sender]--;
         _transfer(address(this), msg.sender, tokenId);
         approve(address(this), tokenId);
-        funds[owner] += listPrice;
+        funds[owner()] += listPrice;
         funds[token.seller] += token.price;
         token.currentlyListed = false;
         token.owner = payable(msg.sender);
