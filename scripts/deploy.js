@@ -16,7 +16,7 @@ async function main() {
     address: contract.address,
     abi: contract.interface.format(),
   };
-  fs.writeFile("./frontend/src/marketplace.json", JSON.stringify(data, null, 2), {
+  fs.writeFile("./frontend/src/Marketplace.json", JSON.stringify(data, null, 2), {
     encoding: "utf-8",
   });
 }
